@@ -1,0 +1,5 @@
+{
+  "name": "OncoGuide AI - FIGO 2023",
+  "description": "An intelligent endometrial cancer staging calculator based on FIGO 2023 guidelines, powered by Gemini 3.",
+  "requestFramePermissions": []
+}
