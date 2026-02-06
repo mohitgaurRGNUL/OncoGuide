@@ -1,65 +1,1503 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>OncoGuide AI - FIGO 2023</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <style>
-      body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
-      ::-webkit-scrollbar { width: 6px; height: 6px; }
-      ::-webkit-scrollbar-track { background: transparent; }
-      ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-      ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-      
-      .glass-panel {
-        background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.5);
-      }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OncoGuide SoTA • Deterministic Oncology Decision Support</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink-900: #0f172a;
+      --ink-700: #334155;
+      --ink-500: #64748b;
+      --ink-300: #cbd5f5;
+      --bg: #f8fafc;
+      --panel: #ffffff;
+      --brand: #2563eb;
+      --brand-soft: #dbeafe;
+      --accent: #14b8a6;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --success: #10b981;
+      --border: #e2e8f0;
+      --shadow: 0 24px 48px -24px rgba(15, 23, 42, 0.18);
+      --mono: "SFMono-Regular", "Menlo", "Monaco", "Consolas", "Liberation Mono", "Courier New", monospace;
+    }
 
-      @keyframes blob {
-        0% { transform: translate(0px, 0px) scale(1); }
-        33% { transform: translate(30px, -50px) scale(1.1); }
-        66% { transform: translate(-20px, 20px) scale(0.9); }
-        100% { transform: translate(0px, 0px) scale(1); }
-      }
-      .animate-blob { animation: blob 7s infinite; }
-      .animation-delay-2000 { animation-delay: 2s; }
-      
-      @keyframes fade-in-up {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-      .animate-fade-in-up { animation: fade-in-up 0.3s ease-out forwards; }
+    * {
+      box-sizing: border-box;
+    }
 
-      @keyframes fade-in {
-        from { opacity: 0; }
-        to { opacity: 1; }
+    body {
+      margin: 0;
+      font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--ink-900);
+    }
+
+    header {
+      padding: 32px 40px 16px;
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    header p {
+      margin: 0;
+      color: var(--ink-700);
+      max-width: 820px;
+    }
+
+    main {
+      padding: 0 40px 56px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .grid {
+      display: grid;
+      gap: 20px;
+    }
+
+    .grid.two {
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    }
+
+    .grid.three {
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--ink-700);
+    }
+
+    select,
+    input[type="text"],
+    input[type="number"],
+    textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      background: #fff;
+      color: var(--ink-900);
+    }
+
+    textarea {
+      min-height: 160px;
+      font-family: var(--mono);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      background: var(--brand-soft);
+      color: var(--brand);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      background: var(--brand);
+      color: white;
+    }
+
+    .btn.secondary {
+      background: #e2e8f0;
+      color: var(--ink-900);
+    }
+
+    .btn.ghost {
+      background: transparent;
+      border: 1px dashed var(--border);
+      color: var(--ink-700);
+    }
+
+    .warning {
+      border-left: 4px solid var(--warning);
+      background: #fff7ed;
+      padding: 12px 16px;
+      border-radius: 12px;
+      color: #7c2d12;
+    }
+
+    .danger {
+      border-left: 4px solid var(--danger);
+      background: #fef2f2;
+      padding: 12px 16px;
+      border-radius: 12px;
+      color: #991b1b;
+    }
+
+    .success {
+      border-left: 4px solid var(--success);
+      background: #ecfdf5;
+      padding: 12px 16px;
+      border-radius: 12px;
+      color: #065f46;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin: 0 0 12px;
+    }
+
+    .rule-log {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .rule-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #f8fafc;
+    }
+
+    .rule-card h4 {
+      margin: 0 0 6px;
+      font-size: 14px;
+    }
+
+    .rule-meta {
+      font-size: 12px;
+      color: var(--ink-500);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .explain-grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #f1f5f9;
+      font-size: 12px;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      background: #e2e8f0;
+      color: var(--ink-700);
+    }
+
+    .status-chip.warning {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-chip.danger {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .status-chip.success {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    footer {
+      padding: 24px 40px 40px;
+      font-size: 12px;
+      color: var(--ink-500);
+    }
+
+    .code-block {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 12px;
+      border-radius: 12px;
+      font-family: var(--mono);
+      font-size: 12px;
+      overflow-x: auto;
+    }
+
+    .inline-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    @media (max-width: 720px) {
+      header,
+      main,
+      footer {
+        padding-left: 20px;
+        padding-right: 20px;
       }
-      .animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
-    </style>
-<script type="importmap">
-{
-  "imports": {
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "react": "https://esm.sh/react@^19.2.3",
-    "@google/genai": "https://esm.sh/@google/genai@^1.37.0",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
-  }
-}
-</script>
+    }
+  </style>
 </head>
 <body>
-    <div id="root"></div>
+  <header>
+    <span class="badge">Deterministic Rule Engine • Clinical Guideline Edition</span>
+    <h1>OncoGuide SoTA: Multi-Cancer Clinical Decision Support</h1>
+    <p>
+      OncoGuide SoTA is a guideline-native oncology decision platform. All staging, risk stratification, treatment,
+      and surveillance recommendations are produced exclusively by deterministic rules within each cancer module.
+      No AI or probabilistic inference participates in clinical decision making. Explanation summaries are templated
+      and optional for patient-friendly communication.
+    </p>
+  </header>
+
+  <main>
+    <section class="panel">
+      <div class="grid two">
+        <div>
+          <p class="section-title">Cancer Context</p>
+          <div class="grid two">
+            <div>
+              <label for="cancerSelect">Select Cancer Type</label>
+              <select id="cancerSelect"></select>
+            </div>
+            <div>
+              <label for="versionSelect">Guideline Version</label>
+              <select id="versionSelect"></select>
+            </div>
+          </div>
+          <div class="inline-list" id="metadataBadges"></div>
+        </div>
+        <div>
+          <p class="section-title">Safety Layer</p>
+          <div id="safetyBanner" class="warning">Awaiting patient inputs.</div>
+          <div class="divider"></div>
+          <div class="inline-list" id="safetyChips"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <p class="section-title">Patient Inputs</p>
+      <div id="inputForm" class="grid three"></div>
+      <div class="divider"></div>
+      <p class="section-title">Biomarkers</p>
+      <div id="biomarkerForm" class="grid three"></div>
+      <div class="divider"></div>
+      <button id="runEvaluation" class="btn">Run Deterministic Evaluation</button>
+    </section>
+
+    <section class="panel">
+      <p class="section-title">Clinical Determinations</p>
+      <div id="outputs" class="explain-grid"></div>
+    </section>
+
+    <section class="panel">
+      <p class="section-title">Explainability Ledger</p>
+      <div id="ruleLog" class="rule-log"></div>
+    </section>
+
+    <section class="panel">
+      <p class="section-title">Patient-Friendly Summary (Non-Decision Support)</p>
+      <p>
+        This summary is a templated, optional explanation for patients or caregivers. It never influences staging or
+        treatment outputs.
+      </p>
+      <div class="grid two">
+        <div>
+          <label for="summaryTone">Summary Tone</label>
+          <select id="summaryTone">
+            <option value="reassuring">Reassuring</option>
+            <option value="neutral">Neutral</option>
+            <option value="formal">Formal</option>
+          </select>
+        </div>
+        <div>
+          <label for="summaryAudience">Audience</label>
+          <select id="summaryAudience">
+            <option value="patient">Patient</option>
+            <option value="caregiver">Caregiver</option>
+            <option value="mixed">Patient + Caregiver</option>
+          </select>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <button id="generateSummary" class="btn secondary">Generate Summary</button>
+      <div class="divider"></div>
+      <textarea id="summaryOutput" readonly></textarea>
+    </section>
+
+    <section class="panel">
+      <p class="section-title">Developer Console: Add New Cancer Module</p>
+      <p>
+        Add a new cancer module by inserting a new object into the <code>Guidelines</code> master database. The
+        template below conforms to the deterministic rule schema and can be copied into the database without changing
+        the core engine.
+      </p>
+      <button id="generateTemplate" class="btn ghost">Generate Cancer Module Template</button>
+      <div class="divider"></div>
+      <textarea id="templateOutput" readonly></textarea>
+    </section>
+  </main>
+
+  <footer>
+    <p>
+      Clinical guidance sources shown within modules include NCCN, ESMO, ASCO, AJCC, FIGO, and institutional
+      consensus statements. Always validate outputs against current institutional policies.
+    </p>
+  </footer>
+
+  <script>
+    const Guidelines = {
+      breast_cancer: {
+        versions: {
+          NCCN_2025_v2: {
+            metadata: {
+              cancer_name: "Breast Cancer",
+              guideline_source: "NCCN / ASCO",
+              version: "2025.2",
+              last_updated: "2025-02"
+            },
+            required_inputs: [
+              { id: "tumor_size_cm", label: "Tumor size (cm)", type: "number" },
+              { id: "nodes_positive", label: "Nodes positive", type: "select", options: ["yes", "no"] },
+              { id: "distant_metastasis", label: "Distant metastasis", type: "select", options: ["yes", "no"] },
+              { id: "grade", label: "Histologic grade", type: "select", options: ["1", "2", "3"] },
+              { id: "menopausal_status", label: "Menopausal status", type: "select", options: ["premenopausal", "postmenopausal"] }
+            ],
+            biomarkers: [
+              { id: "er_status", label: "ER status", type: "select", options: ["positive", "negative"] },
+              { id: "pr_status", label: "PR status", type: "select", options: ["positive", "negative"] },
+              { id: "her2_status", label: "HER2 status", type: "select", options: ["positive", "negative"] },
+              { id: "ki67", label: "Ki-67 (%)", type: "number" }
+            ],
+            staging_rules: [
+              {
+                id: "BC_STAGE_IV_01",
+                description: "Stage IV if distant metastasis present",
+                if: { distant_metastasis: "yes" },
+                then: { stage: "IV" },
+                source: "AJCC 8",
+                evidence: "IA"
+              },
+              {
+                id: "BC_STAGE_III_01",
+                description: "Stage III if nodes positive and tumor >= 5 cm",
+                if: { nodes_positive: "yes", tumor_size_cm: { min: 5 } },
+                then: { stage: "III" },
+                source: "AJCC 8",
+                evidence: "IA"
+              },
+              {
+                id: "BC_STAGE_II_01",
+                description: "Stage II if tumor 2-5 cm and no distant metastasis",
+                if: { tumor_size_cm: { min: 2, max: 5 }, distant_metastasis: "no" },
+                then: { stage: "II" },
+                source: "AJCC 8",
+                evidence: "IA"
+              },
+              {
+                id: "BC_STAGE_I_01",
+                description: "Stage I if tumor < 2 cm, nodes negative, no metastasis",
+                if: { tumor_size_cm: { max: 2 }, nodes_positive: "no", distant_metastasis: "no" },
+                then: { stage: "I" },
+                source: "AJCC 8",
+                evidence: "IA"
+              }
+            ],
+            risk_rules: [
+              {
+                id: "BC_RISK_HIGH_01",
+                description: "High risk if grade 3 or Ki-67 >= 20",
+                if: { grade: "3", ki67: { min: 20 } },
+                then: { risk_group: "High" },
+                source: "NCCN 2025",
+                evidence: "IIA"
+              },
+              {
+                id: "BC_RISK_INTERMEDIATE_01",
+                description: "Intermediate risk if grade 2",
+                if: { grade: "2" },
+                then: { risk_group: "Intermediate" },
+                source: "NCCN 2025",
+                evidence: "IIB"
+              },
+              {
+                id: "BC_RISK_LOW_01",
+                description: "Low risk if grade 1 and Ki-67 < 20",
+                if: { grade: "1", ki67: { max: 20 } },
+                then: { risk_group: "Low" },
+                source: "NCCN 2025",
+                evidence: "IIA"
+              }
+            ],
+            treatment_rules: [
+              {
+                id: "BC_TX_01",
+                description: "Endocrine therapy for ER/PR positive disease",
+                if: { er_status: "positive" },
+                then: { treatment_plan: "Endocrine therapy (tamoxifen or aromatase inhibitor based on menopausal status)." },
+                source: "NCCN 2025",
+                evidence: "IA"
+              },
+              {
+                id: "BC_TX_02",
+                description: "Add HER2-targeted therapy if HER2 positive",
+                if: { her2_status: "positive" },
+                then: { treatment_plan: "HER2-targeted therapy (trastuzumab-based)." },
+                source: "NCCN 2025",
+                evidence: "IA"
+              },
+              {
+                id: "BC_TX_03",
+                description: "Consider chemotherapy for stage II or higher",
+                if: { stage: { anyOf: ["II", "III", "IV"] } },
+                then: { treatment_plan: "Systemic chemotherapy per risk/biomarker profile." },
+                source: "NCCN 2025",
+                evidence: "IIB"
+              }
+            ],
+            surveillance_rules: [
+              {
+                id: "BC_SURV_01",
+                description: "Surveillance imaging every 12 months",
+                if: { stage: { anyOf: ["I", "II", "III"] } },
+                then: { surveillance_plan: "Annual mammography with clinical breast exam every 6-12 months." },
+                source: "ASCO 2024",
+                evidence: "IA"
+              },
+              {
+                id: "BC_SURV_02",
+                description: "Stage IV surveillance every 3-6 months",
+                if: { stage: "IV" },
+                then: { surveillance_plan: "Imaging and labs every 3-6 months based on disease burden." },
+                source: "ASCO 2024",
+                evidence: "IIA"
+              }
+            ]
+          },
+          ESMO_2024_v1: {
+            metadata: {
+              cancer_name: "Breast Cancer",
+              guideline_source: "ESMO",
+              version: "2024.1",
+              last_updated: "2024-10"
+            },
+            required_inputs: [
+              { id: "tumor_size_cm", label: "Tumor size (cm)", type: "number" },
+              { id: "nodes_positive", label: "Nodes positive", type: "select", options: ["yes", "no"] },
+              { id: "distant_metastasis", label: "Distant metastasis", type: "select", options: ["yes", "no"] }
+            ],
+            biomarkers: [
+              { id: "er_status", label: "ER status", type: "select", options: ["positive", "negative"] },
+              { id: "her2_status", label: "HER2 status", type: "select", options: ["positive", "negative"] }
+            ],
+            staging_rules: [
+              {
+                id: "BC_ESMO_STAGE_IV",
+                description: "Stage IV if distant metastasis present",
+                if: { distant_metastasis: "yes" },
+                then: { stage: "IV" },
+                source: "AJCC 8",
+                evidence: "IA"
+              }
+            ],
+            risk_rules: [
+              {
+                id: "BC_ESMO_RISK_BASE",
+                description: "Intermediate risk default",
+                if: { tumor_size_cm: { min: 0 } },
+                then: { risk_group: "Intermediate" },
+                source: "ESMO 2024",
+                evidence: "IIB"
+              }
+            ],
+            treatment_rules: [
+              {
+                id: "BC_ESMO_TX_01",
+                description: "Endocrine therapy for ER positive",
+                if: { er_status: "positive" },
+                then: { treatment_plan: "Endocrine therapy per ESMO guidance." },
+                source: "ESMO 2024",
+                evidence: "IA"
+              }
+            ],
+            surveillance_rules: [
+              {
+                id: "BC_ESMO_SURV_01",
+                description: "Annual imaging",
+                if: { tumor_size_cm: { min: 0 } },
+                then: { surveillance_plan: "Annual imaging and routine clinical follow-up." },
+                source: "ESMO 2024",
+                evidence: "IIA"
+              }
+            ]
+          }
+        }
+      },
+      lung_nsclc: {
+        versions: {
+          ESMO_2025_v1: {
+            metadata: {
+              cancer_name: "Non-Small Cell Lung Cancer",
+              guideline_source: "ESMO / IASLC",
+              version: "2025.1",
+              last_updated: "2025-01"
+            },
+            required_inputs: [
+              { id: "tumor_size_cm", label: "Tumor size (cm)", type: "number" },
+              { id: "nodes_positive", label: "Nodes positive", type: "select", options: ["yes", "no"] },
+              { id: "distant_metastasis", label: "Distant metastasis", type: "select", options: ["yes", "no"] },
+              { id: "performance_status", label: "ECOG performance status", type: "select", options: ["0", "1", "2", "3", "4"] }
+            ],
+            biomarkers: [
+              { id: "egfr", label: "EGFR mutation", type: "select", options: ["positive", "negative"] },
+              { id: "alk", label: "ALK fusion", type: "select", options: ["positive", "negative"] },
+              { id: "pd_l1", label: "PD-L1 (%)", type: "number" }
+            ],
+            staging_rules: [
+              {
+                id: "NSCLC_STAGE_IV",
+                description: "Stage IV if distant metastasis",
+                if: { distant_metastasis: "yes" },
+                then: { stage: "IV" },
+                source: "IASLC 8",
+                evidence: "IA"
+              },
+              {
+                id: "NSCLC_STAGE_III",
+                description: "Stage III if nodes positive and no distant metastasis",
+                if: { nodes_positive: "yes", distant_metastasis: "no" },
+                then: { stage: "III" },
+                source: "IASLC 8",
+                evidence: "IA"
+              },
+              {
+                id: "NSCLC_STAGE_II",
+                description: "Stage II if tumor >= 4 cm",
+                if: { tumor_size_cm: { min: 4 }, distant_metastasis: "no" },
+                then: { stage: "II" },
+                source: "IASLC 8",
+                evidence: "IA"
+              }
+            ],
+            risk_rules: [
+              {
+                id: "NSCLC_RISK_HIGH",
+                description: "High risk if ECOG >=2",
+                if: { performance_status: { min: 2 } },
+                then: { risk_group: "High" },
+                source: "ESMO 2025",
+                evidence: "IIB"
+              },
+              {
+                id: "NSCLC_RISK_LOW",
+                description: "Low risk if ECOG 0-1",
+                if: { performance_status: { max: 1 } },
+                then: { risk_group: "Low" },
+                source: "ESMO 2025",
+                evidence: "IIB"
+              }
+            ],
+            treatment_rules: [
+              {
+                id: "NSCLC_TX_TARGETED",
+                description: "Targeted therapy for EGFR or ALK",
+                if: { egfr: "positive" },
+                then: { treatment_plan: "EGFR-targeted therapy (osimertinib or equivalent)." },
+                source: "ESMO 2025",
+                evidence: "IA"
+              },
+              {
+                id: "NSCLC_TX_IMMUNO",
+                description: "Immunotherapy if PD-L1 >= 50",
+                if: { pd_l1: { min: 50 } },
+                then: { treatment_plan: "First-line immunotherapy per PD-L1 status." },
+                source: "ESMO 2025",
+                evidence: "IA"
+              },
+              {
+                id: "NSCLC_TX_CHEMO",
+                description: "Platinum doublet chemo if no driver mutations",
+                if: { egfr: "negative", alk: "negative" },
+                then: { treatment_plan: "Platinum-based doublet chemotherapy." },
+                source: "ESMO 2025",
+                evidence: "IIB"
+              }
+            ],
+            surveillance_rules: [
+              {
+                id: "NSCLC_SURV",
+                description: "CT chest every 6 months for 2 years",
+                if: { stage: { anyOf: ["I", "II", "III"] } },
+                then: { surveillance_plan: "CT chest every 6 months for 2 years, then annually." },
+                source: "ESMO 2025",
+                evidence: "IIA"
+              }
+            ]
+          }
+        }
+      },
+      colorectal_cancer: {
+        versions: {
+          NCCN_2025_v1: {
+            metadata: {
+              cancer_name: "Colorectal Cancer",
+              guideline_source: "NCCN / AJCC",
+              version: "2025.1",
+              last_updated: "2025-01"
+            },
+            required_inputs: [
+              { id: "t_stage", label: "T stage", type: "select", options: ["T1", "T2", "T3", "T4"] },
+              { id: "nodes_positive", label: "Nodes positive", type: "select", options: ["yes", "no"] },
+              { id: "distant_metastasis", label: "Distant metastasis", type: "select", options: ["yes", "no"] },
+              { id: "obstruction", label: "Bowel obstruction", type: "select", options: ["yes", "no"] }
+            ],
+            biomarkers: [
+              { id: "msi_status", label: "MSI status", type: "select", options: ["high", "stable"] },
+              { id: "ras_status", label: "RAS status", type: "select", options: ["mutated", "wildtype"] }
+            ],
+            staging_rules: [
+              {
+                id: "CRC_STAGE_IV",
+                description: "Stage IV if distant metastasis",
+                if: { distant_metastasis: "yes" },
+                then: { stage: "IV" },
+                source: "AJCC 8",
+                evidence: "IA"
+              },
+              {
+                id: "CRC_STAGE_III",
+                description: "Stage III if nodes positive",
+                if: { nodes_positive: "yes", distant_metastasis: "no" },
+                then: { stage: "III" },
+                source: "AJCC 8",
+                evidence: "IA"
+              },
+              {
+                id: "CRC_STAGE_II",
+                description: "Stage II if T3-4, nodes negative",
+                if: { t_stage: { anyOf: ["T3", "T4"] }, nodes_positive: "no", distant_metastasis: "no" },
+                then: { stage: "II" },
+                source: "AJCC 8",
+                evidence: "IA"
+              }
+            ],
+            risk_rules: [
+              {
+                id: "CRC_RISK_HIGH",
+                description: "High risk if obstruction or T4",
+                if: { obstruction: "yes" },
+                then: { risk_group: "High" },
+                source: "NCCN 2025",
+                evidence: "IIB"
+              },
+              {
+                id: "CRC_RISK_STANDARD",
+                description: "Standard risk otherwise",
+                if: { obstruction: "no" },
+                then: { risk_group: "Standard" },
+                source: "NCCN 2025",
+                evidence: "IIB"
+              }
+            ],
+            treatment_rules: [
+              {
+                id: "CRC_TX_MSI",
+                description: "Immunotherapy for MSI-H metastatic disease",
+                if: { msi_status: "high", stage: "IV" },
+                then: { treatment_plan: "Checkpoint inhibitor therapy for MSI-H disease." },
+                source: "NCCN 2025",
+                evidence: "IA"
+              },
+              {
+                id: "CRC_TX_ADJUVANT",
+                description: "Adjuvant chemo for stage III",
+                if: { stage: "III" },
+                then: { treatment_plan: "Adjuvant chemotherapy (FOLFOX/CAPOX)." },
+                source: "NCCN 2025",
+                evidence: "IA"
+              }
+            ],
+            surveillance_rules: [
+              {
+                id: "CRC_SURV",
+                description: "CEA and imaging every 6-12 months",
+                if: { stage: { anyOf: ["II", "III"] } },
+                then: { surveillance_plan: "CEA every 3-6 months, CT annually for 5 years." },
+                source: "NCCN 2025",
+                evidence: "IIA"
+              }
+            ]
+          }
+        }
+      },
+      prostate_cancer: {
+        versions: {
+          NCCN_2025_v1: {
+            metadata: {
+              cancer_name: "Prostate Cancer",
+              guideline_source: "NCCN",
+              version: "2025.1",
+              last_updated: "2025-01"
+            },
+            required_inputs: [
+              { id: "psa", label: "PSA (ng/mL)", type: "number" },
+              { id: "gleason_score", label: "Gleason score", type: "select", options: ["6", "7", "8", "9", "10"] },
+              { id: "t_stage", label: "T stage", type: "select", options: ["T1", "T2", "T3", "T4"] }
+            ],
+            biomarkers: [
+              { id: "brca_status", label: "BRCA mutation", type: "select", options: ["positive", "negative"] }
+            ],
+            staging_rules: [
+              {
+                id: "PC_STAGE_ADV",
+                description: "Stage IV if T4",
+                if: { t_stage: "T4" },
+                then: { stage: "IV" },
+                source: "AJCC 8",
+                evidence: "IA"
+              },
+              {
+                id: "PC_STAGE_LOCAL",
+                description: "Stage II if T2",
+                if: { t_stage: "T2" },
+                then: { stage: "II" },
+                source: "AJCC 8",
+                evidence: "IA"
+              }
+            ],
+            risk_rules: [
+              {
+                id: "PC_RISK_HIGH",
+                description: "High risk if PSA >= 20 or Gleason >= 8",
+                if: { psa: { min: 20 } },
+                then: { risk_group: "High" },
+                source: "NCCN 2025",
+                evidence: "IA"
+              },
+              {
+                id: "PC_RISK_INTERMEDIATE",
+                description: "Intermediate risk if PSA 10-20",
+                if: { psa: { min: 10, max: 20 } },
+                then: { risk_group: "Intermediate" },
+                source: "NCCN 2025",
+                evidence: "IIB"
+              },
+              {
+                id: "PC_RISK_LOW",
+                description: "Low risk if PSA < 10 and Gleason 6",
+                if: { psa: { max: 10 }, gleason_score: "6" },
+                then: { risk_group: "Low" },
+                source: "NCCN 2025",
+                evidence: "IIB"
+              }
+            ],
+            treatment_rules: [
+              {
+                id: "PC_TX_SURVEILLANCE",
+                description: "Active surveillance for low risk",
+                if: { risk_group: "Low" },
+                then: { treatment_plan: "Active surveillance with PSA and MRI monitoring." },
+                source: "NCCN 2025",
+                evidence: "IA"
+              },
+              {
+                id: "PC_TX_RADIATION",
+                description: "Radiation + ADT for high risk",
+                if: { risk_group: "High" },
+                then: { treatment_plan: "External beam radiation plus androgen deprivation therapy." },
+                source: "NCCN 2025",
+                evidence: "IA"
+              }
+            ],
+            surveillance_rules: [
+              {
+                id: "PC_SURV",
+                description: "PSA every 6 months",
+                if: { stage: { anyOf: ["II", "III", "IV"] } },
+                then: { surveillance_plan: "PSA monitoring every 6 months and annual imaging." },
+                source: "NCCN 2025",
+                evidence: "IIA"
+              }
+            ]
+          }
+        }
+      },
+      ovarian_cancer: {
+        versions: {
+          FIGO_2025_v1: {
+            metadata: {
+              cancer_name: "Ovarian Cancer",
+              guideline_source: "FIGO / NCCN",
+              version: "2025.1",
+              last_updated: "2025-02"
+            },
+            required_inputs: [
+              { id: "figo_stage", label: "FIGO stage", type: "select", options: ["I", "II", "III", "IV"] },
+              { id: "residual_disease", label: "Residual disease after surgery", type: "select", options: ["none", "<1cm", ">=1cm"] }
+            ],
+            biomarkers: [
+              { id: "brca_status", label: "BRCA mutation", type: "select", options: ["positive", "negative"] },
+              { id: "hrd_status", label: "HRD status", type: "select", options: ["positive", "negative"] }
+            ],
+            staging_rules: [
+              {
+                id: "OV_STAGE",
+                description: "Stage derived directly from FIGO",
+                if: { figo_stage: { anyOf: ["I", "II", "III", "IV"] } },
+                then: { stage: "FIGO" },
+                source: "FIGO 2025",
+                evidence: "IA"
+              }
+            ],
+            risk_rules: [
+              {
+                id: "OV_RISK_HIGH",
+                description: "High risk if residual disease >=1cm",
+                if: { residual_disease: ">=1cm" },
+                then: { risk_group: "High" },
+                source: "NCCN 2025",
+                evidence: "IIB"
+              },
+              {
+                id: "OV_RISK_STANDARD",
+                description: "Standard risk if no residual disease",
+                if: { residual_disease: "none" },
+                then: { risk_group: "Standard" },
+                source: "NCCN 2025",
+                evidence: "IIB"
+              }
+            ],
+            treatment_rules: [
+              {
+                id: "OV_TX_PLATINUM",
+                description: "Platinum-based chemo for stage II-IV",
+                if: { figo_stage: { anyOf: ["II", "III", "IV"] } },
+                then: { treatment_plan: "Platinum-based chemotherapy with consideration of bevacizumab." },
+                source: "NCCN 2025",
+                evidence: "IA"
+              },
+              {
+                id: "OV_TX_PARPi",
+                description: "PARP inhibitor maintenance for BRCA+",
+                if: { brca_status: "positive" },
+                then: { treatment_plan: "PARP inhibitor maintenance therapy." },
+                source: "NCCN 2025",
+                evidence: "IA"
+              }
+            ],
+            surveillance_rules: [
+              {
+                id: "OV_SURV",
+                description: "CA-125 and imaging every 3-6 months",
+                if: { figo_stage: { anyOf: ["I", "II", "III", "IV"] } },
+                then: { surveillance_plan: "Clinical exam and CA-125 every 3-6 months with imaging as indicated." },
+                source: "NCCN 2025",
+                evidence: "IIA"
+              }
+            ]
+          }
+        }
+      },
+      pancreatic_cancer: {
+        versions: {
+          NCCN_2025_v1: {
+            metadata: {
+              cancer_name: "Pancreatic Cancer",
+              guideline_source: "NCCN",
+              version: "2025.1",
+              last_updated: "2025-01"
+            },
+            required_inputs: [
+              { id: "resectability", label: "Resectability", type: "select", options: ["resectable", "borderline", "unresectable"] },
+              { id: "performance_status", label: "ECOG performance status", type: "select", options: ["0", "1", "2", "3", "4"] }
+            ],
+            biomarkers: [
+              { id: "ca19_9", label: "CA 19-9 (U/mL)", type: "number" },
+              { id: "brca_status", label: "BRCA mutation", type: "select", options: ["positive", "negative"] }
+            ],
+            staging_rules: [
+              {
+                id: "PCX_STAGE_RESECTABLE",
+                description: "Resectable disease assigned Stage I-II",
+                if: { resectability: "resectable" },
+                then: { stage: "I-II" },
+                source: "NCCN 2025",
+                evidence: "IA"
+              },
+              {
+                id: "PCX_STAGE_BORDERLINE",
+                description: "Borderline resectable Stage II-III",
+                if: { resectability: "borderline" },
+                then: { stage: "II-III" },
+                source: "NCCN 2025",
+                evidence: "IA"
+              },
+              {
+                id: "PCX_STAGE_UNRESECTABLE",
+                description: "Unresectable Stage III/IV",
+                if: { resectability: "unresectable" },
+                then: { stage: "III-IV" },
+                source: "NCCN 2025",
+                evidence: "IA"
+              }
+            ],
+            risk_rules: [
+              {
+                id: "PCX_RISK_HIGH",
+                description: "High risk if ECOG >=2",
+                if: { performance_status: { min: 2 } },
+                then: { risk_group: "High" },
+                source: "NCCN 2025",
+                evidence: "IIB"
+              },
+              {
+                id: "PCX_RISK_STANDARD",
+                description: "Standard risk if ECOG 0-1",
+                if: { performance_status: { max: 1 } },
+                then: { risk_group: "Standard" },
+                source: "NCCN 2025",
+                evidence: "IIB"
+              }
+            ],
+            treatment_rules: [
+              {
+                id: "PCX_TX_SURGERY",
+                description: "Surgery for resectable disease",
+                if: { resectability: "resectable" },
+                then: { treatment_plan: "Surgical resection with adjuvant chemotherapy." },
+                source: "NCCN 2025",
+                evidence: "IA"
+              },
+              {
+                id: "PCX_TX_NEOADJUVANT",
+                description: "Neoadjuvant therapy for borderline resectable",
+                if: { resectability: "borderline" },
+                then: { treatment_plan: "Neoadjuvant chemotherapy +/- radiation followed by reassessment." },
+                source: "NCCN 2025",
+                evidence: "IA"
+              },
+              {
+                id: "PCX_TX_PALLIATIVE",
+                description: "Systemic therapy for unresectable disease",
+                if: { resectability: "unresectable" },
+                then: { treatment_plan: "Systemic chemotherapy with palliative intent." },
+                source: "NCCN 2025",
+                evidence: "IA"
+              },
+              {
+                id: "PCX_TX_PARPi",
+                description: "PARP inhibitor maintenance for BRCA+",
+                if: { brca_status: "positive" },
+                then: { treatment_plan: "Consider PARP inhibitor maintenance after platinum response." },
+                source: "NCCN 2025",
+                evidence: "IIB"
+              }
+            ],
+            surveillance_rules: [
+              {
+                id: "PCX_SURV",
+                description: "CT and CA 19-9 every 3-6 months",
+                if: { resectability: { anyOf: ["resectable", "borderline", "unresectable"] } },
+                then: { surveillance_plan: "CT imaging and CA 19-9 every 3-6 months." },
+                source: "NCCN 2025",
+                evidence: "IIA"
+              }
+            ]
+          }
+        }
+      }
+    };
+
+    const GuidelineVersions = {
+      breast_cancer: "NCCN_2025_v2",
+      lung_nsclc: "ESMO_2025_v1",
+      colorectal_cancer: "NCCN_2025_v1",
+      prostate_cancer: "NCCN_2025_v1",
+      ovarian_cancer: "FIGO_2025_v1",
+      pancreatic_cancer: "NCCN_2025_v1"
+    };
+
+    const RuleEngine = {
+      evaluate(cancerType, patientData, versionKey) {
+        const module = getModule(cancerType, versionKey);
+        if (!module) {
+          return {
+            outputs: {},
+            log: [],
+            warnings: ["Guideline module not found."],
+            missing: [],
+            conflicts: []
+          };
+        }
+
+        const missing = module.required_inputs
+          .filter((field) => !isValueProvided(patientData[field.id]))
+          .map((field) => field.label);
+
+        const outputs = {
+          stage: "Pending",
+          risk_group: "Pending",
+          treatment_plan: [],
+          surveillance_plan: []
+        };
+
+        const log = [];
+        const conflicts = [];
+
+        const applyRuleSet = (rules, category) => {
+          rules.forEach((rule) => {
+            if (matchesRule(rule.if, patientData, outputs)) {
+              Object.entries(rule.then).forEach(([key, value]) => {
+                if (key === "treatment_plan" || key === "surveillance_plan") {
+                  outputs[key].push(value);
+                } else {
+                  if (outputs[key] !== "Pending" && outputs[key] !== value) {
+                    conflicts.push(
+                      `Conflict on ${key}: ${outputs[key]} vs ${value} (rule ${rule.id})`
+                    );
+                  }
+                  outputs[key] = value;
+                }
+              });
+              log.push({
+                ...rule,
+                category
+              });
+            }
+          });
+        };
+
+        applyRuleSet(module.staging_rules, "staging");
+        applyRuleSet(module.risk_rules, "risk");
+        applyRuleSet(module.treatment_rules, "treatment");
+        applyRuleSet(module.surveillance_rules, "surveillance");
+
+        if (outputs.treatment_plan.length === 0) {
+          outputs.treatment_plan.push("No deterministic treatment rule matched. Tumor board review required.");
+        }
+        if (outputs.surveillance_plan.length === 0) {
+          outputs.surveillance_plan.push("No surveillance rule matched. Tumor board review required.");
+        }
+
+        return {
+          outputs,
+          log,
+          warnings: missing.length ? ["Missing required inputs."] : [],
+          missing,
+          conflicts
+        };
+      }
+    };
+
+    const cancerSelect = document.getElementById("cancerSelect");
+    const versionSelect = document.getElementById("versionSelect");
+    const inputForm = document.getElementById("inputForm");
+    const biomarkerForm = document.getElementById("biomarkerForm");
+    const outputsContainer = document.getElementById("outputs");
+    const ruleLog = document.getElementById("ruleLog");
+    const safetyBanner = document.getElementById("safetyBanner");
+    const safetyChips = document.getElementById("safetyChips");
+    const metadataBadges = document.getElementById("metadataBadges");
+
+    const runButton = document.getElementById("runEvaluation");
+    const templateButton = document.getElementById("generateTemplate");
+    const templateOutput = document.getElementById("templateOutput");
+    const summaryButton = document.getElementById("generateSummary");
+    const summaryOutput = document.getElementById("summaryOutput");
+
+    function getModule(cancerType, versionKey) {
+      const cancer = Guidelines[cancerType];
+      if (!cancer) return null;
+      return cancer.versions[versionKey];
+    }
+
+    function isValueProvided(value) {
+      return value !== undefined && value !== null && value !== "";
+    }
+
+    function matchesRule(conditions, patientData, outputs) {
+      return Object.entries(conditions).every(([key, conditionValue]) => {
+        const sourceValue = key in outputs ? outputs[key] : patientData[key];
+        if (conditionValue && typeof conditionValue === "object" && !Array.isArray(conditionValue)) {
+          if ("anyOf" in conditionValue) {
+            return conditionValue.anyOf.includes(sourceValue);
+          }
+          if ("min" in conditionValue && isValueProvided(sourceValue)) {
+            if (Number(sourceValue) < conditionValue.min) return false;
+          }
+          if ("max" in conditionValue && isValueProvided(sourceValue)) {
+            if (Number(sourceValue) > conditionValue.max) return false;
+          }
+          if ("not" in conditionValue) {
+            return sourceValue !== conditionValue.not;
+          }
+          return true;
+        }
+        return sourceValue === conditionValue;
+      });
+    }
+
+    function hydrateSelectOptions() {
+      cancerSelect.innerHTML = "";
+      Object.keys(Guidelines).forEach((key) => {
+        const option = document.createElement("option");
+        option.value = key;
+        option.textContent = Guidelines[key].versions[GuidelineVersions[key]].metadata.cancer_name;
+        cancerSelect.appendChild(option);
+      });
+    }
+
+    function hydrateVersionOptions(cancerKey) {
+      versionSelect.innerHTML = "";
+      const versions = Object.keys(Guidelines[cancerKey].versions);
+      versions.forEach((version) => {
+        const option = document.createElement("option");
+        option.value = version;
+        option.textContent = version;
+        versionSelect.appendChild(option);
+      });
+      versionSelect.value = GuidelineVersions[cancerKey];
+    }
+
+    function buildForm(fields, container) {
+      container.innerHTML = "";
+      fields.forEach((field) => {
+        const wrapper = document.createElement("div");
+        const label = document.createElement("label");
+        label.textContent = field.label;
+        label.setAttribute("for", field.id);
+        wrapper.appendChild(label);
+
+        let input;
+        if (field.type === "select") {
+          input = document.createElement("select");
+          field.options.forEach((optionValue) => {
+            const option = document.createElement("option");
+            option.value = optionValue;
+            option.textContent = optionValue;
+            input.appendChild(option);
+          });
+          const placeholder = document.createElement("option");
+          placeholder.value = "";
+          placeholder.textContent = "Select";
+          placeholder.selected = true;
+          placeholder.disabled = true;
+          input.insertBefore(placeholder, input.firstChild);
+        } else {
+          input = document.createElement("input");
+          input.type = field.type;
+          input.placeholder = field.type === "number" ? "0" : "";
+        }
+
+        input.id = field.id;
+        input.dataset.fieldId = field.id;
+        wrapper.appendChild(input);
+        container.appendChild(wrapper);
+      });
+    }
+
+    function collectInputs(module) {
+      const data = {};
+      module.required_inputs.forEach((field) => {
+        const element = document.getElementById(field.id);
+        data[field.id] = element ? element.value : "";
+      });
+      module.biomarkers.forEach((field) => {
+        const element = document.getElementById(field.id);
+        data[field.id] = element ? element.value : "";
+      });
+      return data;
+    }
+
+    function renderMetadata(module, versionKey) {
+      metadataBadges.innerHTML = "";
+      const metadata = module.metadata;
+      const items = [
+        `${metadata.cancer_name}`,
+        `Source: ${metadata.guideline_source}`,
+        `Version: ${versionKey}`,
+        `Updated: ${metadata.last_updated}`
+      ];
+      items.forEach((item) => {
+        const badge = document.createElement("span");
+        badge.className = "pill";
+        badge.textContent = item;
+        metadataBadges.appendChild(badge);
+      });
+    }
+
+    function renderOutputs(result, module) {
+      outputsContainer.innerHTML = "";
+      const outputs = result.outputs;
+
+      const panels = [
+        {
+          title: "Stage",
+          value: outputs.stage,
+          rules: result.log.filter((rule) => rule.then.stage)
+        },
+        {
+          title: "Risk Group",
+          value: outputs.risk_group,
+          rules: result.log.filter((rule) => rule.then.risk_group)
+        },
+        {
+          title: "Treatment Plan",
+          value: outputs.treatment_plan,
+          rules: result.log.filter((rule) => rule.then.treatment_plan)
+        },
+        {
+          title: "Surveillance",
+          value: outputs.surveillance_plan,
+          rules: result.log.filter((rule) => rule.then.surveillance_plan)
+        }
+      ];
+
+      panels.forEach((panel) => {
+        const card = document.createElement("div");
+        card.className = "panel";
+        const header = document.createElement("h3");
+        header.className = "section-title";
+        header.textContent = panel.title;
+        card.appendChild(header);
+
+        const value = document.createElement("div");
+        value.style.fontWeight = "600";
+        value.style.marginBottom = "12px";
+        if (Array.isArray(panel.value)) {
+          const list = document.createElement("ul");
+          list.style.margin = "0";
+          list.style.paddingLeft = "18px";
+          panel.value.forEach((item) => {
+            const li = document.createElement("li");
+            li.textContent = item;
+            list.appendChild(li);
+          });
+          value.appendChild(list);
+        } else {
+          value.textContent = panel.value;
+        }
+        card.appendChild(value);
+
+        const detail = document.createElement("div");
+        detail.className = "rule-log";
+        if (panel.rules.length === 0) {
+          const note = document.createElement("p");
+          note.textContent = "No rule fired for this output.";
+          note.style.color = "var(--ink-500)";
+          detail.appendChild(note);
+        } else {
+          panel.rules.forEach((rule) => {
+            const ruleCard = document.createElement("div");
+            ruleCard.className = "rule-card";
+            const title = document.createElement("h4");
+            title.textContent = rule.description;
+            const meta = document.createElement("div");
+            meta.className = "rule-meta";
+            meta.textContent = `Rule ${rule.id} • ${rule.source} • Evidence ${rule.evidence}`;
+            ruleCard.appendChild(title);
+            ruleCard.appendChild(meta);
+            detail.appendChild(ruleCard);
+          });
+        }
+        card.appendChild(detail);
+        outputsContainer.appendChild(card);
+      });
+    }
+
+    function renderLog(result) {
+      ruleLog.innerHTML = "";
+      if (result.log.length === 0) {
+        ruleLog.innerHTML = "<p>No rules executed yet.</p>";
+        return;
+      }
+      result.log.forEach((rule) => {
+        const card = document.createElement("div");
+        card.className = "rule-card";
+        const title = document.createElement("h4");
+        title.textContent = `${rule.description}`;
+        const meta = document.createElement("div");
+        meta.className = "rule-meta";
+        meta.textContent = `${rule.id} • ${rule.category} • ${rule.source} • Evidence ${rule.evidence}`;
+        card.appendChild(title);
+        card.appendChild(meta);
+        ruleLog.appendChild(card);
+      });
+    }
+
+    function renderSafety(result) {
+      safetyChips.innerHTML = "";
+      const warnings = [];
+
+      if (result.missing.length) {
+        warnings.push(`Missing: ${result.missing.join(", ")}`);
+      }
+      if (result.conflicts.length) {
+        warnings.push(`Conflicts: ${result.conflicts.join(" | ")}`);
+      }
+
+      if (warnings.length === 0) {
+        safetyBanner.className = "success";
+        safetyBanner.textContent = "All required inputs provided. No conflicts detected.";
+      } else {
+        safetyBanner.className = result.conflicts.length ? "danger" : "warning";
+        safetyBanner.textContent = result.conflicts.length
+          ? "Conflicting rules detected. Tumor Board Review Recommended."
+          : "Missing data detected. Please complete required fields.";
+      }
+
+      warnings.forEach((warning) => {
+        const chip = document.createElement("span");
+        chip.className = result.conflicts.length ? "status-chip danger" : "status-chip warning";
+        chip.textContent = warning;
+        safetyChips.appendChild(chip);
+      });
+    }
+
+    function runEvaluation() {
+      const cancerKey = cancerSelect.value;
+      const versionKey = versionSelect.value;
+      GuidelineVersions[cancerKey] = versionKey;
+      const module = getModule(cancerKey, versionKey);
+      const data = collectInputs(module);
+
+      const result = RuleEngine.evaluate(cancerKey, data, versionKey);
+      renderMetadata(module, versionKey);
+      renderOutputs(result, module);
+      renderLog(result);
+      renderSafety(result);
+    }
+
+    function rebuildForms() {
+      const cancerKey = cancerSelect.value;
+      const versionKey = GuidelineVersions[cancerKey];
+      const module = getModule(cancerKey, versionKey);
+      hydrateVersionOptions(cancerKey);
+      buildForm(module.required_inputs, inputForm);
+      buildForm(module.biomarkers, biomarkerForm);
+      renderMetadata(module, versionKey);
+      outputsContainer.innerHTML = "";
+      ruleLog.innerHTML = "<p>No rules executed yet.</p>";
+      safetyBanner.className = "warning";
+      safetyBanner.textContent = "Awaiting patient inputs.";
+      safetyChips.innerHTML = "";
+    }
+
+    function generateTemplate() {
+      const template = {
+        metadata: {
+          cancer_name: "New Cancer",
+          guideline_source: "NCCN / ESMO / ASCO / FIGO",
+          version: "YYYY.X",
+          last_updated: "YYYY-MM"
+        },
+        required_inputs: [],
+        biomarkers: [],
+        staging_rules: [],
+        risk_rules: [],
+        treatment_rules: [],
+        surveillance_rules: []
+      };
+      templateOutput.value = JSON.stringify(template, null, 2);
+    }
+
+    function generateSummary() {
+      const cancerKey = cancerSelect.value;
+      const versionKey = versionSelect.value;
+      const module = getModule(cancerKey, versionKey);
+      const data = collectInputs(module);
+      const result = RuleEngine.evaluate(cancerKey, data, versionKey);
+
+      const tone = document.getElementById("summaryTone").value;
+      const audience = document.getElementById("summaryAudience").value;
+
+      const toneMap = {
+        reassuring: "We are here to support you.",
+        neutral: "This is a factual summary of the clinical findings.",
+        formal: "This statement summarizes the clinical determination."
+      };
+
+      const lines = [
+        `${toneMap[tone]}`,
+        `Cancer type: ${module.metadata.cancer_name}.`,
+        `Guideline version used: ${versionKey} (${module.metadata.guideline_source}).`,
+        `Stage determination: ${result.outputs.stage}.`,
+        `Risk group: ${result.outputs.risk_group}.`,
+        `Treatment plan highlights: ${result.outputs.treatment_plan.join(" ")}`,
+        `Surveillance plan highlights: ${result.outputs.surveillance_plan.join(" ")}`
+      ];
+
+      if (result.missing.length || result.conflicts.length) {
+        lines.push("Important: Some required data are missing or conflicting. Please review with your oncology team.");
+      }
+
+      if (audience === "caregiver") {
+        lines.push("This summary is intended to support caregivers in understanding the care plan.");
+      } else if (audience === "mixed") {
+        lines.push("This summary is for both patients and caregivers.");
+      }
+
+      summaryOutput.value = lines.join("\n");
+    }
+
+    hydrateSelectOptions();
+    cancerSelect.value = Object.keys(Guidelines)[0];
+    rebuildForms();
+
+    cancerSelect.addEventListener("change", () => {
+      rebuildForms();
+    });
+
+    versionSelect.addEventListener("change", () => {
+      runEvaluation();
+    });
+
+    runButton.addEventListener("click", runEvaluation);
+    templateButton.addEventListener("click", generateTemplate);
+    summaryButton.addEventListener("click", generateSummary);
+  </script>
 </body>
 </html>
